@@ -40,7 +40,7 @@ Controller thực hiện chuyển các tham số request thành response cho bro
 
 Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Do các quy ước của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
 
-### 1.1.4 Tương tác với View
+<!-- ### 1.1.4 Tương tác với View
 Controller tương tác với view theo một số cách. Đầu tiên, nó truyền dữ liệu đến view, sử dụng `Controller::set()`. Ta cũng có thể quyết định lớp view nào sử dụng, và những gì view hiển thị.
 
 #### Thiết lập biến View
@@ -88,7 +88,7 @@ Nếu cần chuyển tiếp từ action hiện tại đến một action khác t
 // From a delete action, you can render the updated
 // list page.
 $this->setAction('index');
-```
+``` -->
 
 ## 1.2 Components
 Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho controller code "sạch" và cho phép sử dụng lại code giữa các controller.
@@ -196,6 +196,31 @@ class ExistingComponent extends Component
 }
 ```
 
+## 1.3 Model
+Model là các lớp tạo nên lớp business trong ứng dụng. Chúng có trách nhiệm quản lý hầu hết liên quan đến dữ liệu, tính hợp lệ và tương tác của dữ liệu.
+
+Thông thường, các lớp model mô tả dữ liệu được sử dụng trong các ứng dụng CakePHP để truy cập dữ liệu. Chúng thường đại diện cho một bảng cơ sở dữ liệu nhưng có thể được sử dụng để truy cập vào bất cứ thứ gì điều khiển dữ liệu như file, các dịch vụ web bên ngoài.
+
+Lớp model của CakePHP được tách giữa đối tượng `Table` và `Entity`. Đối tượng `Table` cung cấp truy cập vào tập các thực thể được lưu trữ trong một bảng cụ thể và đi tới **src/Model/Table**. File ta tạo ra được lưu ở **src/Model/Table/Articles.php**
+
+```
+// src/Model/Table/ArticlesTable.php
+
+namespace App\Model\Table;
+
+use Cake\ORM\Table;
+
+class ArticlesTable extends Table
+{
+    public function initialize(array $config)
+    {
+        $this->addBehavior('Timestamp');
+    }
+}
+```
+
+Các quy tắc đặt tên rất quan trọng trong CakePHP. Đặt tên đối tượng Table là `ArticlesTable`, CakePHP có thể tự động suy ra rằng đối tượng Table này sẽ được sử dụng trong `ArticlesController` và sẽ được gán với một bảng cơ sở dữ liệu là `articles`. 
+
 ## 1.4 Configuration
 Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng. Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
 
@@ -225,5 +250,38 @@ Khi biến môi trường được thiết lập, ta có thể đọc dữ liệ
 
 `$debug = env('APP_DEBUG', false);`
 
-### 1.4.3 Configure class
-`class` Cake\Core\**Configure**
+### 1.4.3 Lớp Configure
+`class` Cake\Core\\**Configure**
+
+Lớp Configure có thể được sử dụng để lưu trữ và truy xuất các giá trị cụ thể của ứng dụng hoặc giá trị runtime. Mục tiêu chính của lớp Configure là giữ các biến tập trung để có thể được chia sẻ giữa nhiều đối tượng.
+
+#### Ghi dữ liệu Configuration
+`static` Cake\Core\Configure::**write**($key, $value)
+
+Sử dụng `write()` để lưu trữ dữ liệu trong cấu hình của ứng dụng:
+
+`Configure::write('Company.name','Pizza, Inc.')`
+
+#### Đọc dữ liệu Configuration
+`static` Cake\Core\Configure::**read**($key = null, $default = null)
+
+Sử dụng để đọc dữ liệu cấu hình từ ứng dụng. Nếu một key đươc cung cấp, dữ liệu sẽ được trả về.
+
+```
+// Returns 'Pizza Inc.'
+Configure::read('Company.name');
+```
+
+#### Kiểm tra để xem dữ liệu cấu hình được định nghĩa
+`static` Cake\Core\Configure::**check**($key)
+
+Được sử dụng để kiểm tra nếu một key/path tồn tại và giá trị khác null:
+
+`$exists = Configure::check('Company.name');`
+
+#### Xóa dữ liệu cấu hình
+`static` Cake\Core\Configure::**delete**($key)
+
+Được sử dụng để xóa thông tin cấu hình của ứng dụng:
+
+`Configure::delete('Company.name');`
