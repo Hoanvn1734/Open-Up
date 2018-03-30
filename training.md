@@ -287,12 +287,9 @@ Configure::read('Company.name');
 `Configure::delete('Company.name');`
 
 # 2. Bootstrap 4
-Xây dựng responsive, projects mobile đầu tiên trên web với thư viện thành phần front-end phổ biến nhất trên thế giới.
+Bootstrap là một công cụ mã nguồn mở để phát triển với HTML, CSS và JS, cho phép thiết kế website responsive nhanh hơn và dễ dàng hơn. Nhanh chóng tạo mẫu cho các ý tưởng hoặc xây dựng toàn bộ ứng dụng với Sass và mixins, các thành phần được dựng sẵn, và các plugin mạnh mẽ được xây dựng trên jQuery.
 
-Bootstrap là một công cụ mã nguồn mở để phát triển với HTML, CSS và JS. Nhanh chóng tạo mẫu cho các ý tưởng hoặc xây dựng toàn bộ ứng dụng với Sass và mixins, các thành phần được dựng sẵn, và các plugin mạnh mẽ được xây dựng trên jQuery.
-
-## 2.1 Nội dung
-### Precompiled Bootstrap
+## 2.1 Cấu trúc thư mục
 Sau khi download và giải nén, ta sẽ nhìn thấy
 ```
 bootstrap/
@@ -316,4 +313,51 @@ bootstrap/
     └── bootstrap.min.js
 ```
 
-Đây là form cơ bản của Bootstrap: các file biên dịch sẵn để sử dụng nhanh chóng trong các web project. Nó cung cấp CSS và JS đã được biên dịch <span style="color: pink">(bootstrap.\*)</span>, cũng như CSS và JS được biên dịch và minified <span style="color: pink">(bootstrap.min.\*)</span>. CSS <span style="color: blue">source maps</span> <span style="color: pink">(bootstrap.\*.map)</span> có sẵn để sử dụng với các công cụ phát triển của browser. File bundled JS (<span style="color: pink">bootstrap.bundle.js</span> và minified <span style="color: pink">bootstrap.bundle.min.js</span>) bao gồm Popper, nhưng không có jQuery.
+Đây là form cơ bản của Bootstrap: các file biên dịch sẵn để sử dụng nhanh chóng trong các web project. Nó cung cấp CSS và JS đã được biên dịch (`bootstrap.\*`), cũng như CSS và JS được biên dịch và minified (`bootstrap.min.\*`). CSS **source maps** (`bootstrap.\*.map`) có sẵn để sử dụng với các công cụ phát triển của browser. File bundled JS (`bootstrap.bundle.js` và minified `bootstrap.bundle.min.js`) bao gồm **Popper**, nhưng không có **jQuery**.
+
+## 2.2 Các điểm nổi bật của bootstrap 4
+### 2.2.1 Chuyển đổi từ LESS sang SASS
+Bootstrap bây giờ biên dịch rất nhanh nhờ Libsass, và tham gia vào cộng đồng phát triển SASS.
+
+CSS Preprocessor là một ngôn ngữ kịch bản mở rộng của CSS và được biên dịch thành cú pháp CSS giúp ta viết CSS nhanh hơn và có cấu trúc rõ ràng hơn. CSS Preprocessor có thể giúp ta tiết kiệm thời gian viết CSS, dễ dàng bảo trì và phát triển CSS,...
+
+SASS là một CSS Preprocessor cung cấp thêm các quy tắc như nested rule, variable, mixin, ... Với SASS ta có thể viết CSS theo thứ tự rõ ràng, quản lý các biến đã được định nghĩa sẵn, có thể tự động nén tập tin CSS.
+
+### 2.2.2 Cải tiến hệ thống Grid
+Bootstrap 3 hiện tạo có 4 dạng grid dành cho cột, đó là `.col-xs-`, `.col-sm-`, `.col-md-`, `.col-lg-`. Bootstrap 4 đã chỉnh lại và giới thiệu thêm dạng grid thứ 5 là `.col-xl-` giúp xây dựng layout hoạt động tốt hơn trên tất cả các thiết bị.
+
+### 2.2.3 Hỗ trợ Opt-in flexbox
+Chuyển đổi biến boolean trong file `_variables.scss` và biên dịch lại CSS để thấy sự tiện dụng của các thành phần và hệ thống grid sử dụng flexbox.
+
+Mặc định ban đầu
+
+![](https://viblo.asia/uploads/c5bbd856-90d1-4cc4-9279-d543343a974f.png)
+
+Chuyển đổi sử dụng flexbox
+
+![](https://viblo.asia/uploads/f2d6c6b5-b6ab-4520-b9ca-e8e772dd9af9.png)
+
+### 2.2.4 Bootstrap card
+Bootstrap giới thiệu component mới là `Cards`. `Cards` được ra đời để thay thế `wells`, `thumbnails`, `panels`.
+
+![](https://viblo.asia/uploads/ae13b6a3-7fa3-4981-8b69-ea958037ade3.png)
+
+### 2.2.5 Thống nhất các đoạn reset HTML vào một module Reboot
+Reboot can thiệp rộng hơn `Normalize.css` (nơi chứa đoạn reset cũ), cung cấp nhiều lựa chọn reset hơn ví dụ như `box-sizing`, `margin`,...tất cả gói gọn trong một file `Sass`.
+
+### 2.2.6 Ngừng hỗ trợ IE8 và chuyển sang sử dụng đơn vị rem/em
+IE8 là trình duyệt lỗi thời, có rất nhiều lỗi và hạn chế về mặt công nghệ. Ngừng hỗ trợ IE8 đồng nghĩa với việc Bootstrap 4 có thể tận dụng tối ưu CSS mà không phải quan tâm đến trick hack CSS.
+
+Đơn vị pixel được thay đổi bằng đơn vị `rem` và `em` để phù hợp với kiểu trình bày responsive và tùy chỉnh kích thước các thành phần dễ dàng hơn.
+
+### 2.2.7 Viết lại các hàm Javascript
+Tất cả các hàm đều được viết lại bằng ES6 để tận dụng những ưu điểm của hệ thống Javascript mới.
+
+### 2.2.8 Cải thiện vị trí tooltips và popovers
+Nhờ vào thư viện `Tether` - một thư viện js được cung cấp bởi bên thứ 3 giúp nâng cấp `tooltips` và `popovers`.
+
+### 2.2.9 Cải thiện Documentation
+Bootstrap 4 viết hướng dẫn chi tiết, bố cục trình bày hợp lý, kết hợp với sử dụng `Markdown` giúp mọi người đọc code dễ dàng thông qua các ví dụ.
+
+### Rất nhiều thứ khác nữa
+Ví dụ như custom form control, margin, các class padding, các class mới,...
