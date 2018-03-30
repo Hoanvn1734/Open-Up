@@ -197,29 +197,13 @@ class ExistingComponent extends Component
 ```
 
 ## 1.3 Model
-Model là các lớp tạo nên lớp business trong ứng dụng. Chúng có trách nhiệm quản lý hầu hết liên quan đến dữ liệu, tính hợp lệ và tương tác của dữ liệu.
+Model là các lớp tạo nên lớp business trong ứng dụng. Chúng có trách nhiệm quản lý hầu hết những gì liên quan đến dữ liệu, tính hợp lệ và tương tác của dữ liệu.
 
 Thông thường, các lớp model mô tả dữ liệu được sử dụng trong các ứng dụng CakePHP để truy cập dữ liệu. Chúng thường đại diện cho một bảng cơ sở dữ liệu nhưng có thể được sử dụng để truy cập vào bất cứ thứ gì điều khiển dữ liệu như file, các dịch vụ web bên ngoài.
 
-Lớp model của CakePHP được tách giữa đối tượng `Table` và `Entity`. Đối tượng `Table` cung cấp truy cập vào tập các thực thể được lưu trữ trong một bảng cụ thể và đi tới **src/Model/Table**. File ta tạo ra được lưu ở **src/Model/Table/Articles.php**
+Một model có thể được liên kết với các model khác. Ví dụ: Bài Post có thể liên kết với Author hoặc Comment.
 
-```
-// src/Model/Table/ArticlesTable.php
-
-namespace App\Model\Table;
-
-use Cake\ORM\Table;
-
-class ArticlesTable extends Table
-{
-    public function initialize(array $config)
-    {
-        $this->addBehavior('Timestamp');
-    }
-}
-```
-
-Các quy tắc đặt tên rất quan trọng trong CakePHP. Đặt tên đối tượng Table là `ArticlesTable`, CakePHP có thể tự động suy ra rằng đối tượng Table này sẽ được sử dụng trong `ArticlesController` và sẽ được gán với một bảng cơ sở dữ liệu là `articles`. 
+Lớp model của CakePHP được tách thành hai đối tượng `Table` và `Entity`. Đối tượng `Table` cho phép ta lưu các bản ghi mới, sửa đổi/xóa các bản ghi hiện có, xác định mối quan hệ. Đối tượng `Entity` đại diện cho các bản ghi và cho phép ta xác định hành vi và chức năng cấp độ row/record. CakePHP sử dụng các quy ước đặt tên để liên kết hai lớp Table và Entity với nhau.
 
 ## 1.4 Configuration
 Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng. Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
