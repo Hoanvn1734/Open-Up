@@ -225,7 +225,7 @@ Các quy tắc đặt tên rất quan trọng trong CakePHP. Đặt tên đối 
 Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng. Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
 
 ### 1.4.1 Config ứng dụng
-Configuration thường được lưu trữ trong các file PHP hoặc INI, và được tải trong khi khởi động ứng dụng. CakePHP đi kèm với một file cấu hình mặc định, nhưng ta cũng có thể thêm file cấu hình bổ sung và tải vào code ứng dụng. `Cake\Core\Configure` được sử dụng cho cấu hình toàn cục, cà các lớp như Cache cung cấp phương thức config() để làm cho cấu hình đơn giản và rõ ràng.
+Configuration thường được lưu trữ trong các file PHP hoặc INI, và được tải trong khi khởi động ứng dụng. CakePHP đi kèm với một file cấu hình mặc định, nhưng ta cũng có thể thêm file cấu hình bổ sung và tải vào code ứng dụng. `Cake\Core\Configure` được sử dụng cho cấu hình toàn cục, và các lớp như Cache cung cấp phương thức config() để làm cho cấu hình đơn giản và rõ ràng.
 
 #### Load file cấu hình bổ sung
 Nếu ứng dụng có nhiều tùy chọn cấu hình, có thể chia thành nhiều file cấu hình nhỏ. Sau khi tạo mỗi file trong thư mục **config/**, ta có thể load chúng trong **bootstrap.php**:
@@ -242,7 +242,7 @@ Configure::load('other_config', 'default');
 Ta cũng có thể sử dụng file cấu hình bổ sung để ghi đè môi trường. Mỗi file được load sau **app.php** có thể xác định lại giá trị được khai báo trước đó cho phép ta tùy chỉnh cấu hình cho môi trường.
 
 ### 1.4.2 Biến môi trường
-Biến môi trường làm cho ứng dụng dễ quản lý hơn khi nó được triển khai trêm một số môi trường. Trong **app.php**, hàm env() được sử dụng để đọc cấu hình từ môi trường, và xây dựng cấu hình ứng dụng. CakePHP sử dụng chuỗi **DSN** cho cơ sở dữ liệu, logs, emailvà cấu hình cache cho phép ta dễ dàng thay đổi các thư viện này trong mỗi môi trường.
+Biến môi trường làm cho ứng dụng dễ quản lý hơn khi nó được triển khai trên một số môi trường. Trong **app.php**, hàm env() được sử dụng để đọc cấu hình từ môi trường, và xây dựng cấu hình ứng dụng. CakePHP sử dụng chuỗi **DSN** cho cơ sở dữ liệu, logs, email và cấu hình cache cho phép ta dễ dàng thay đổi các thư viện này trong mỗi môi trường.
 
 Đối với triển khai local, CakePHP cho phép triển khai dễ dàng bằng cách sử dụng biến môi trường. Ta sẽ thấy `config/.env.default` trong ứng dụng. Copy file này vào `config/.env` và chỉnh các giá trị ta có thể cấu hình ứng dụng.
 
@@ -285,3 +285,35 @@ Configure::read('Company.name');
 Được sử dụng để xóa thông tin cấu hình của ứng dụng:
 
 `Configure::delete('Company.name');`
+
+# 2. Bootstrap 4
+Xây dựng responsive, projects mobile đầu tiên trên web với thư viện thành phần front-end phổ biến nhất trên thế giới.
+
+Bootstrap là một công cụ mã nguồn mở để phát triển với HTML, CSS và JS. Nhanh chóng tạo mẫu cho các ý tưởng hoặc xây dựng toàn bộ ứng dụng với Sass và mixins, các thành phần được dựng sẵn, và các plugin mạnh mẽ được xây dựng trên jQuery.
+
+## 2.1 Nội dung
+### Precompiled Bootstrap
+Sau khi download và giải nén, ta sẽ nhìn thấy
+```
+bootstrap/
+├── css/
+│   ├── bootstrap.css
+│   ├── bootstrap.css.map
+│   ├── bootstrap.min.css
+│   ├── bootstrap.min.css.map
+│   ├── bootstrap-grid.css
+│   ├── bootstrap-grid.css.map
+│   ├── bootstrap-grid.min.css
+│   ├── bootstrap-grid.min.css.map
+│   ├── bootstrap-reboot.css
+│   ├── bootstrap-reboot.css.map
+│   ├── bootstrap-reboot.min.css
+│   └── bootstrap-reboot.min.css.map
+└── js/
+    ├── bootstrap.bundle.js
+    ├── bootstrap.bundle.min.js
+    ├── bootstrap.js
+    └── bootstrap.min.js
+```
+
+Đây là form cơ bản của Bootstrap: các file biên dịch sẵn để sử dụng nhanh chóng trong các web project. Nó cung cấp CSS và JS đã được biên dịch <span style="color: pink">(bootstrap.\*)</span>, cũng như CSS và JS được biên dịch và minified <span style="color: pink">(bootstrap.min.\*)</span>. CSS <span style="color: blue">source maps</span> <span style="color: pink">(bootstrap.\*.map)</span> có sẵn để sử dụng với các công cụ phát triển của browser. File bundled JS (<span style="color: pink">bootstrap.bundle.js</span> và minified <span style="color: pink">bootstrap.bundle.min.js</span>) bao gồm Popper, nhưng không có jQuery.
