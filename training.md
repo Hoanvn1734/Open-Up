@@ -4,7 +4,7 @@ Controller là 'C' trong MVC. Thông thường một controller được sử d�
 
 Các Controller được extends từ class `AppController`. `AppController` có thể được định nghĩa trong **src/Controller/AppController** và nó chứa các phương thức được chia sẻ giữa tất cả các controller với nhau.
 
-Controller cung cấp một số phương thức để xử lý các request được gọi là *action*. Theo mặc định, mỗi phương thức public trong một controller là một action, và có thể truy cập từ một URL. Một action phải xử lý request và tạo ra response.
+Controller cung cấp một số phương thức để xử lý các request được gọi là *action*. Theo mặc định, mỗi phương thức public trong một controller là một action, và có thể truy cập từ một URL. Một action xử lý request và tạo ra response.
 
 ### 1.1.1 App Controller
 `AppController` có cấu trúc như sau:
@@ -33,7 +33,7 @@ class AppController extends Controller
 ```
 
 ### 1.1.2 Request Flow
-Khi một request được thực hiện đến một ứng dụng CakePHP, lớp `Cake\Routing\Router` và `Cake\Routing\Dispatcher` sử dụng `Connecting Route` để tìm và tạo ra một instance controller. Dữ liệu request được đóng gói trong một đối trượng request. CakePHP đặt tất cả các thông tin request quan trọng vào thuộc tính `$this->request`.
+Khi một request được thực hiện đến một ứng dụng CakePHP, lớp `Cake\Routing\Router` và `Cake\Routing\Dispatcher` sử dụng `Connecting Route` để tìm và tạo ra một instance controller. Dữ liệu request được đóng gói trong một đối tượng request. CakePHP đặt tất cả các thông tin request quan trọng vào thuộc tính `$this->request`.
 
 ### 1.1.3 Controller Actions
 Controller thực hiện chuyển các tham số request thành response cho browser/user thực hiện request. CakePHP sử dụng các quy ước để tự động hóa quá trình này. Theo quy ước, CakePHP sinh ra một view có tên là tên của action.
@@ -91,7 +91,7 @@ $this->setAction('index');
 ``` -->
 
 ## 1.2 Components
-Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho controller code "sạch" và cho phép sử dụng lại code giữa các controller.
+Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho code của controller "sạch" và cho phép sử dụng lại code giữa các controller.
 
 Các component có trong CakePHP:
 
@@ -308,7 +308,7 @@ CSS Preprocessor là một ngôn ngữ kịch bản mở rộng của CSS và đ
 SASS là một CSS Preprocessor cung cấp thêm các quy tắc như nested rule, variable, mixin, ... Với SASS ta có thể viết CSS theo thứ tự rõ ràng, quản lý các biến đã được định nghĩa sẵn, có thể tự động nén tập tin CSS.
 
 ### 2.2.2 Cải tiến hệ thống Grid
-Bootstrap 3 hiện tạo có 4 dạng grid dành cho cột, đó là `.col-xs-`, `.col-sm-`, `.col-md-`, `.col-lg-`. Bootstrap 4 đã chỉnh lại và giới thiệu thêm dạng grid thứ 5 là `.col-xl-` giúp xây dựng layout hoạt động tốt hơn trên tất cả các thiết bị.
+Bootstrap 3 hiện tại có 4 dạng grid dành cho cột, đó là `.col-xs-`, `.col-sm-`, `.col-md-`, `.col-lg-`. Bootstrap 4 đã chỉnh lại và giới thiệu thêm dạng grid thứ 5 là `.col-xl-` giúp xây dựng layout hoạt động tốt hơn trên tất cả các thiết bị.
 
 ### 2.2.3 Hỗ trợ Opt-in flexbox
 Chuyển đổi biến boolean trong file `_variables.scss` và biên dịch lại CSS để thấy sự tiện dụng của các thành phần và hệ thống grid sử dụng flexbox.
@@ -345,3 +345,33 @@ Bootstrap 4 viết hướng dẫn chi tiết, bố cục trình bày hợp lý, 
 
 ### Rất nhiều thứ khác nữa
 Ví dụ như custom form control, margin, các class padding, các class mới,...
+
+# 3. Nhận xét game Valkyrie Connect
+## Level: 15
+
+## Unit: 15
+
+## Các chức năng chính trong game
+- Mua, bán, nâng cấp đồ
+- Auto
+- Tăng tốc độ game
+- Mượn tướng
+- Tìm kiếm người chơi, follow, block
+- Chat
+- Arena
+- Guild
+- Connect Battle
+- Event
+
+Ngoài ra còn nhiều chức năng khác nữa.
+
+Em thấy 3 chức năng **Arena**, **Event** và **Battle Connect** là hay hơn cả. Vì:
+
+- **Arena** mình được đấu với người chơi thật nên cảm thấy mới mẻ, không nhàm chán như đi đánh quái.
+- **Event** rất phong phú và hấp dẫn, phần thưởng có giá trị, kích thích người chơi, nhưng mà hơi khó.
+- **Battle Connet** mình có thể kết hợp với hai người chơi khác để đi đánh boss kiếm tiền và vật phẩm. Boss nhìn cũng khá hùng vĩ.
+
+## Đánh giá về game
+Em thấy game này chơi hay. Hình ảnh đồ họa đẹp mắt, nhân vật dễ thương. Hiệu ứng kỹ năng nhân vật hoành tráng, đa dạng. Game có nhiều tính năng thú vị, hấp dẫn. Event trong game phong phú, giá trị.
+
+Nhưng có một điểm em không biết vì sao khi connect vào game thì rất khó, phải connect tới vài lần mới vào được game. Nhiều lúc em cảm thấy cũng hơi khó chịu.
