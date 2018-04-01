@@ -30,6 +30,22 @@ Controller thực hiện chuyển các tham số request thành response cho bro
 
 Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Do các quy tắc của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
 
+Khi sử dụng các phương thức trong controller với `requestAction()`, ta thường muốn trả về dữ liệu không phải dạng string. Nếu các phương thức controller được sử dụng cho các request web thông thường, ta nên kiểm tra trước khi trả về
+
+```
+class RecipesController extends AppController {
+    public function popular() {
+        $popular = $this->Recipe->popular();
+        if (!empty($this->request->params['requested'])) {
+            return $popular;
+        }
+        $this->set('popular', $popular);
+    }
+}
+```
+
+Ví dụ trên biểu diễn cách thức một phương thức có thể được sử dụng với `requestAction()` và các request thông thường.
+
 ## 1.2 Components
 Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho code của controller "sạch" và cho phép tái sử dụng code giữa các controller.
 
@@ -37,100 +53,123 @@ Các component có trong CakePHP:
 
 - Authentication
 - Cookie
-- Cross Site Request Forgery
 - Flash
 - Security
 - Pagination
 - Request Handling
+- Access Control Lists
+- Sessions
 
 ### 1.2.1 Cấu hình component
-Nhiều core component yêu cầu phải cấu hình, ví dụ Authentication và Cookie. Cấu hình cho các component này, và các component nói chung, thường thực hiện thông qua `loadComponent()` trong phương thức `initialize()` của Controller hoặc thông qua mảng $components:
+Nhiều core component yêu cầu phải cấu hình, ví dụ Authentication và Cookie. Cấu hình cho các component này, và các component nói chung, thường thực hiện thông qua `beforeFilter()`hoặc thông qua mảng $components:
 
 ```
-class PostsController extends AppController
-{
-    public function initialize()
-    {
-        parent::initialize();
-        $this->loadComponent('Auth', [
-            'authorize' => 'Controller',
-            'loginAction' => ['controller' => 'Users', 'action' => 'login']
-        ]);
-        $this->loadComponent('Cookie', ['expires' => '1 day']);
-    }
+class PostsController extends AppController {
+    public $components = array(
+        'Auth' => array(
+            'authorize' => array('controller'),
+            'loginAction' => array(
+                'controller' => 'users',
+                'action' => 'login'
+            )
+        ),
+        'Cookie' => array('name' => 'CookieMonster')
+    );
+```
 
+`beforeFilter()` hữu ích khi ta cần gán các kết quả của một hàm cho một thuộc tính component.
+
+```
+public function beforeFilter() {
+    $this->Auth->authorize = array('controller');
+    $this->Auth->loginAction = array(
+        'controller' => 'users',
+        'action' => 'login'
+    );
+
+    $this->Cookie->name = 'CookieMonster';
 }
 ```
 
-Ta có thể cấu hình component tại runtime sử dụng phương thức `config()`. Thông thường điều này được thực hiện trong phương thức `beforeFilter()` của controller.
-
-```
-// Read config data.
-$this->Auth->config('loginAction');
-
-// Set config
-$this->Csrf->config('cookieName', 'token');
-```
-
-Component tự động gộp thuộc tính `$_defaultConfig` với cấu hình constructor để tạo ra thuộc tính `$_config` có thể truy cập bằng phương thức `config()`.
-
 ### 1.2.2 Sử dụng Components
-Khi include các component vào trong controller thì sử dụng chúng khá đơn giản. Mỗi component sử dụng được exposed như thuộc tính trong controller. Nếu ta tải `Cake\Controller\Component\FlashComponent` trong controller, ta có thể truy cập như sau:
+Khi include các component vào trong controller thì sử dụng chúng khá đơn giản. Mỗi component sử dụng được exposed như thuộc tính trong controller. Nếu ta tải `SessionComponent` và `CookieComponent` trong controller, ta có thể truy cập như sau:
 
 ```
-class PostsController extends AppController
-{
-    public function initialize()
-    {
-        parent::initialize();
-        $this->loadComponent('Flash');
-    }
+class PostsController extends AppController {
+    public $components = array('Session', 'Cookie');
 
-    public function delete()
-    {
-        if ($this->Post->delete($this->request->getData('Post.id')) {
-            $this->Flash->success('Post deleted.');
-            return $this->redirect(['action' => 'index']);
+    public function delete() {
+        if ($this->Post->delete($this->request->data('Post.id'))) {
+            $this->Session->setFlash('Post deleted.');
+            return $this->redirect(array('action' => 'index'));
         }
     }
 ```
 
-### 1.2.3 Sử dụng Component khác trong Component
-Thỉnh thoảng một vài component cần phải sử dụng component khác. Trong trường hợp này ta có thể include component khác, sử dụng biến $components:
+### 1.2.3 Tạo một Component
+Giả sử ứng dụng cần phải thực hiện phép toán phức tạp trong nhiều phần khác nhau của ứng dụng. Ta có thể tạo một component lưu logic này để sử dụng trong nhiều controller khác.
+
+Đầu tiên là tạo một file component và class. Tạo file trong `app/Controller/Component/MathComponent.php`. Cấu trúc cơ bản cho component như sau:
 
 ```
-// src/Controller/Component/CustomComponent.php
-namespace App\Controller\Component;
+App::uses('Component', 'Controller');
 
-use Cake\Controller\Component;
+class MathComponent extends Component {
+    public function doComplexOperation($amount1, $amount2) {
+        return $amount1 + $amount2;
+    }
+}
+```
 
-class CustomComponent extends Component
-{
-    // The other component your component uses
-    public $components = ['Existing'];
+#### Include component vào controller
+Ta có thể sử dụng component trong controller bằng cách đặt tên của component trong mảng `$components`. Controller sẽ tự động đưa một thuộc tính mới được đặt tên theo component, qua đó ta có thể truy cập vào một instance của nó:
 
-    // Execute any other additional setup for your component.
-    public function initialize(array $config)
-    {
+```
+/* Make the new component available at $this->Math,
+as well as the standard $this->Session */
+public $components = array('Math', 'Session');
+```
+
+Các component được khai báo trong `AppController` sẽ được merge với các component trong controller khác. Vì vậy không cần phải khai báo lại một component hai lần.
+
+Khi include Component trong Controller, ta cũng có thể khai báo một tập các tham số sẽ được đưa vào constructor của Component. Các tham số này sau đó có thể được xử lý bởi Component:
+
+```
+public $components = array(
+    'Math' => array(
+        'precision' => 2,
+        'randomGenerator' => 'srand'
+    ),
+    'Session', 'Auth'
+);
+```
+
+### 1.2.3 Sử dụng Component khác trong Component
+Thỉnh thoảng một vài component cần phải sử dụng component khác. Trong trường hợp này ta có thể include component khác, sử dụng biến $components.
+
+```
+// app/Controller/Component/CustomComponent.php
+App::uses('Component', 'Controller');
+
+class CustomComponent extends Component {
+    // the other component your component uses
+    public $components = array('Existing');
+
+    public function initialize(Controller $controller) {
         $this->Existing->foo();
     }
 
-    public function bar()
-    {
+    public function bar() {
         // ...
-    }
+   }
 }
 
-// src/Controller/Component/ExistingComponent.php
-namespace App\Controller\Component;
+// app/Controller/Component/ExistingComponent.php
+App::uses('Component', 'Controller');
 
-use Cake\Controller\Component;
+class ExistingComponent extends Component {
 
-class ExistingComponent extends Component
-{
-
-    public function foo()
-    {
+    public function foo() {
         // ...
     }
 }
@@ -143,72 +182,208 @@ Thông thường, các lớp model mô tả dữ liệu được sử dụng tro
 
 Một model có thể được liên kết với các model khác. Ví dụ: Bài Post có thể liên kết với Author hoặc Comment.
 
-Lớp model của CakePHP được tách thành hai đối tượng `Table` và `Entity`. Đối tượng `Table` cho phép ta lưu các bản ghi mới, sửa đổi/xóa các bản ghi hiện có, xác định mối quan hệ. Đối tượng `Entity` đại diện cho các bản ghi và cho phép ta xác định hành vi và chức năng cấp độ row/record. CakePHP sử dụng các quy ước đặt tên để liên kết hai lớp Table và Entity với nhau.
+Đây là một ví dụ đơn giản về model trong CakePHP:
+
+```
+App::uses('AppModel', 'Model');
+class Ingredient extends AppModel {
+    public $name = 'Ingredient';
+}
+```
+
+Với khai báo này, model Ingredient sẽ cung cấp tất cả các phương thức ta cần để tạo truy vấn, lưu và xóa dữ liệu. Các phương thức này có từ Model của CakePHP bằng kỹ thuật kế thừa. AppModel là lớp core Model, cung cấp phương thức cho model Ingredient. `App::uses('AppModel', 'Model')` đảm bảo rằng model được load khi cần thiết.
+
+Việc ghi đè AppModel cho phép ta định nghĩa các hàm cần có cho tất cả các Model trong ứng dụng. Để làm được như thế ta cần tạo file `AppModel.php` nằm trong thư mục Model, cũng như tất cả các Model khác. 
+
+Khi Model được định nghĩa, có thể dùng controller để truy cập. Một controller có tên IngredientsController sẽ tự động khởi tạo model Ingredient và gắn nó vào controller ở `$this->Ingredient`
+
+```
+class IngredientsController extends AppController {
+    public function index() {
+        //grab all ingredients and pass it to the view:
+        $ingredients = $this->Ingredient->find('all');
+        $this->set('ingredients', $ingredients);
+    }
+}
+```
+
+Các Model quan hệ liên kết với model chính. Trong ví dụ sau Recipe có một liên kết với model Ingredient
+
+```
+class Recipe extends AppModel {
+
+    public function steakRecipes() {
+        $ingredient = $this->Ingredient->findByName('Steak');
+        return $this->findAllByMainIngredient($ingredient['Ingredient']['id']);
+    }
+}
+```
+
+Điều này cho thấy model đã được liên kết.
 
 ## 1.4 Configuration
-Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng như: Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
+Thư mục *Config* chứa các file cấu hình mà CakePHP sử dụng như: Kết nối cơ sở dữ liệu, bootstrapping, file core,...
 
-### 1.4.1 Config ứng dụng
-Configuration thường được lưu trữ trong các file PHP hoặc INI, và được tải trong khi khởi động ứng dụng. CakePHP đi kèm với một file cấu hình mặc định, nhưng ta cũng có thể thêm file cấu hình bổ sung và tải vào code ứng dụng. `Cake\Core\Configure` được sử dụng cho cấu hình toàn cục, và các lớp như Cache cung cấp phương thức config() để làm cho cấu hình đơn giản và rõ ràng.
-
-#### Load file cấu hình bổ sung
-Nếu ứng dụng có nhiều tùy chọn cấu hình, có thể chia thành nhiều file cấu hình nhỏ. Sau khi tạo mỗi file trong thư mục **config/**, ta có thể load chúng trong **bootstrap.php**:
+### 1.4.1 Database configuration
+Cấu hình database của CakePHP ở file `app/Config/database.php`. Một ví dụ về config database:
 
 ```
-use Cake\Core\Configure;
-use Cake\Core\Configure\Engine\PhpConfig;
-
-Configure::config('default', new PhpConfig());
-Configure::load('app', 'default', false);
-Configure::load('other_config', 'default');
+class DATABASE_CONFIG {
+    public $default = array(
+        'datasource'  => 'Database/Mysql',
+        'persistent'  => false,
+        'host'        => 'localhost',
+        'login'       => 'cakephpuser',
+        'password'    => 'c4k3roxx!',
+        'database'    => 'my_cakephp_project',
+        'prefix'      => ''
+    );
+}
 ```
 
-Ta cũng có thể sử dụng file cấu hình bổ sung để ghi đè môi trường. Mỗi file được load sau **app.php** có thể xác định lại giá trị được khai báo trước đó cho phép ta tùy chỉnh cấu hình cho môi trường.
+Việc đặt tên cũng rất quan trọng. Ví dụ nếu có bảng big_boxes, model là BigBox, controller là BigBoxesController thì mọi thứ sẽ hoạt động tự động.
 
-### 1.4.2 Biến môi trường
-Biến môi trường làm cho ứng dụng dễ quản lý hơn khi nó được triển khai trên một số môi trường. Trong **app.php**, hàm env() được sử dụng để đọc cấu hình từ môi trường, và xây dựng cấu hình ứng dụng. CakePHP sử dụng chuỗi **DSN** cho cơ sở dữ liệu, logs, email và cấu hình cache cho phép ta dễ dàng thay đổi các thư viện này trong mỗi môi trường.
+### 1.4.2 Thêm Class Path
+Ta có thể chia sẻ các class MVC giữa các ứng dụng trên cùng một hệ thống. Nếu muốn có cùng controller trong cả hai ứng dụng, ta có thể sử dụng `bootstrap.php` của CakePHP để đưa các class bổ sung này vào view.
 
-Đối với triển khai local, CakePHP cho phép triển khai dễ dàng bằng cách sử dụng biến môi trường. Ta sẽ thấy `config/.env.default` trong ứng dụng. Copy file này vào `config/.env` và chỉnh các giá trị ta có thể cấu hình ứng dụng.
-
-Khi biến môi trường được thiết lập, ta có thể đọc dữ liệu từ môi trường:
-
-`$debug = env('APP_DEBUG', false);`
-
-### 1.4.3 Lớp Configure
-`class` Cake\Core\\**Configure**
-
-Lớp Configure có thể được sử dụng để lưu trữ và truy xuất các giá trị cụ thể của ứng dụng hoặc giá trị runtime. Mục tiêu chính của lớp Configure là giữ các biến tập trung để có thể được chia sẻ giữa nhiều đối tượng.
-
-#### Ghi dữ liệu Configuration
-`static` Cake\Core\Configure::**write**($key, $value)
-
-Sử dụng `write()` để lưu trữ dữ liệu trong cấu hình của ứng dụng:
-
-`Configure::write('Company.name','Pizza, Inc.')`
-
-#### Đọc dữ liệu Configuration
-`static` Cake\Core\Configure::**read**($key = null, $default = null)
-
-Sử dụng để đọc dữ liệu cấu hình từ ứng dụng. Nếu một key đươc cung cấp, dữ liệu sẽ được trả về.
+Sử dụng `App::build()` trong `bootstrap.php` để định nghĩa các đường dẫn bổ sung mà CakePHP sẽ tìm các class.
 
 ```
-// Returns 'Pizza Inc.'
-Configure::read('Company.name');
+App::build(array(
+    'Model' => array(
+        '/path/to/models',
+        '/next/path/to/models'
+    ),
+    'Model/Behavior' => array(
+        '/path/to/behaviors',
+        '/next/path/to/behaviors'
+    ),
+    'Model/Datasource' => array(
+        '/path/to/datasources',
+        '/next/path/to/datasources'
+    ),
+    'Model/Datasource/Database' => array(
+        '/path/to/databases',
+        '/next/path/to/database'
+    ),
+    'Model/Datasource/Session' => array(
+        '/path/to/sessions',
+        '/next/path/to/sessions'
+    ),
+    'Controller' => array(
+        '/path/to/controllers',
+        '/next/path/to/controllers'
+    ),
+    'Controller/Component' => array(
+        '/path/to/components',
+        '/next/path/to/components'
+    ),
+    'Controller/Component/Auth' => array(
+        '/path/to/auths',
+        '/next/path/to/auths'
+    ),
+    'Controller/Component/Acl' => array(
+        '/path/to/acls',
+        '/next/path/to/acls'
+    ),
+    'View' => array(
+        '/path/to/views',
+        '/next/path/to/views'
+    ),
+    'View/Helper' => array(
+        '/path/to/helpers',
+        '/next/path/to/helpers'
+    ),
+    'Console' => array(
+        '/path/to/consoles',
+        '/next/path/to/consoles'
+    ),
+    'Console/Command' => array(
+        '/path/to/commands',
+        '/next/path/to/commands'
+    ),
+    'Console/Command/Task' => array(
+        '/path/to/tasks',
+        '/next/path/to/tasks'
+    ),
+    'Lib' => array(
+        '/path/to/libs',
+        '/next/path/to/libs'
+    ),
+    'Locale' => array(
+        '/path/to/locales',
+        '/next/path/to/locales'
+    ),
+    'Vendor' => array(
+        '/path/to/vendors',
+        '/next/path/to/vendors'
+    ),
+    'Plugin' => array(
+        '/path/to/plugins',
+        '/next/path/to/plugins'
+    ),
+));
 ```
 
-#### Kiểm tra để xem dữ liệu cấu hình được định nghĩa
-`static` Cake\Core\Configure::**check**($key)
+### 1.4.3 Core Configuration
+#### CakePHP Core Configuration
+Class `Configure` được sử dụng để quản lý một tập các biến cấu hình CakePHP core. Các biến này nằm ở trong `app/Config/core.php`, bao gồm: debug, Error, Exception, App.baseURL, App.fullBaseUrl,...
 
-Được sử dụng để kiểm tra nếu một key/path tồn tại và giá trị khác null:
+#### Core Cache Configuration
+CakePHP sử dụng hai cấu hình bộ nhớ cache. `_cake_model` và `_cake_core`. `_cake_core` được dùng để lưu đường dẫn file và vị trí object. `_cake_model` được sử dụng để lưu trữ mô tả schema và các danh sách sorce cho datasources. Khuyến nghị sử dụng bộ nhớ cache nhanh APC hoặc Memcached vì chúng đọc được trên mọi request.
 
-`$exists = Configure::check('Company.name');`
+Ta có thể xóa dữ liệu lưu trong cache bằng `Cache::clear()`.
 
-#### Xóa dữ liệu cấu hình
-`static` Cake\Core\Configure::**delete**($key)
+### 1.4.4 Configure Class
+`class` Configure
 
-Được sử dụng để xóa thông tin cấu hình của ứng dụng:
+Class Configure của CakePHP có thể được sử dụng để lưu trữ và truy xuất các giá trị của ứng dụng hoặc các giá trị runtime. Hãy cẩn thận vì class này cho phép ta lưu trữ bất cứ thứ gì, sau đó sử dụng nó ở bất kỳ đâu trong code: có thể dẫn đến việc phá vỡ mô hình MVC của CakePHP. Mục tiêu chính của Configure class là giữ các biến tập trung để có thể chia sẻ giữa nhiều object.
 
-`Configure::delete('Company.name');`
+### 1.4.5 Đọc và ghi file configuration
+CakePHP có hai kiểu đọc file cấu hình. `PhpReader` dùng để đọc file config PHP. `IniReader` được dùng để đọc file config ini.
+
+```
+App::uses('PhpReader', 'Configure');
+// Read config files from app/Config
+Configure::config('default', new PhpReader());
+
+// Read config files from another path.
+Configure::config('default', new PhpReader('/path/to/your/config/files/'));
+```
+
+#### Load file cấu hình
+`static` Configure::load($key, $config = 'default', $merge = true)
+
+Tham số:
+
+- $key (string): Định danh của file config để load.
+- $config (string): Alias của configred reader
+- $merge (boolean): Có hay không nội dung của file đọc phải được merge, hoặc ghi đè lên các giá trị hiện có
+
+```
+// Load my_file.php using the 'default' reader object.
+Configure::load('my_file', 'default');
+```
+
+Thiết lập `$merge = true`, giá trị sẽ không bao giờ ghi đè lên cấu hình hiện tại.
+
+#### Tạo hoặc sửa file configuration
+`static` Configure::dump($key, $config = 'default', $keys = array())
+
+Tham số:
+- $key (string): Tên của file cấu hình được tạo
+- $config (string): Tên của reader để lưu dữ liệu
+- $keys (array): Danh sách các key trên cùng để lưu. Mặc định cho tất cả các key.
+
+Dumps tất cả hoặc một vài dữ liệu trong Configure ra một file hoặc hệ thống lưu trữ được hỗ trợ bởi một config reader. Ví dụ nếu 'default' là một `PhpReader`, file được tạo ra sẽ là một file PHP config có thể load được bởi `PhpReader`.
+
+`Configure::dump('my_config.php', 'default');`
+
+Chỉ lưu cấu hình xử lý error:
+
+`Configure::dump('error.php', 'default', array('Error', 'Exception'));`
+
+`Configure::dump()` có thể được sử udngj để sửa hoặc ghi đè file config có thể đọc được với `Configure::load()`.
 
 # 2. Bootstrap 4
 Bootstrap là một công cụ mã nguồn mở để phát triển với HTML, CSS và JS, cho phép thiết kế website responsive nhanh hơn và dễ dàng hơn. Nhanh chóng tạo mẫu cho các ý tưởng hoặc xây dựng toàn bộ ứng dụng với Sass và mixins, các thành phần được dựng sẵn, và các plugin mạnh mẽ được xây dựng trên jQuery.
@@ -306,13 +481,12 @@ Ví dụ như custom form control, margin, các class padding, các class mới,
 
 Ngoài ra còn nhiều chức năng khác nữa.
 
-Em thấy 3 chức năng **Arena**, **Event** và **Battle Connect** là hay hơn cả. Vì:
+Em thấy 2 chức năng **Arena** và **Battle Connect** là hay hơn cả. Vì:
 
-- **Arena** mình được đấu với người chơi thật nên cảm thấy mới mẻ, không nhàm chán như đi đánh quái.
-- **Event** rất phong phú và hấp dẫn, phần thưởng có giá trị, kích thích người chơi, nhưng mà hơi khó.
+- **Arena** mình được đấu với người chơi thật nên cảm thấy mới mẻ, thú vị, không nhàm chán như đi đánh quái.
 - **Battle Connet** mình có thể kết hợp với hai người chơi khác để đi đánh boss kiếm tiền và vật phẩm. Boss nhìn cũng khá hùng vĩ.
 
 ## Đánh giá về game
 Em thấy game này chơi hay. Hình ảnh đồ họa đẹp mắt, nhân vật dễ thương. Hiệu ứng kỹ năng nhân vật hoành tráng, đa dạng. Game có nhiều tính năng thú vị, hấp dẫn. Event trong game phong phú, giá trị.
 
-Nhưng có một điểm em không biết vì sao khi connect vào game thì rất khó, phải connect tới vài lần mới vào được game. Nhiều lúc em cảm thấy cũng hơi khó chịu.
+Nhưng có một điểm em không biết vì sao khi connect vào game thì rất khó, phải connect tới vài lần mới vào được game. Nhiều lúc em cảm thấy hơi khó chịu.
