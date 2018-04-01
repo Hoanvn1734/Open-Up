@@ -1,21 +1,19 @@
-# 1. CakePHP
+# 1. CakePHP2
 ## 1.1 Controllers
-Controller là 'C' trong MVC. Thông thường một controller được sử dụng để quản lý logic xung quanh một model. Trong CakePHP, controller được đặt tên theo model mà nó xử lý.
+Controller là 'C' trong MVC. Controller có thể coi là người trung gian giữa Model và View. Thông thường một controller được sử dụng để quản lý logic xung quanh một model. Trong CakePHP, controller được đặt tên theo model mà nó xử lý.
 
-Các Controller được extends từ class `AppController`. `AppController` có thể được định nghĩa trong **src/Controller/AppController** và nó chứa các phương thức được chia sẻ giữa tất cả các controller với nhau.
+Các Controller được extends từ class `AppController`. `AppController` có thể được định nghĩa trong **/app/Controller/AppController.php** và nó chứa các phương thức được chia sẻ giữa tất cả các controller với nhau.
 
 Controller cung cấp một số phương thức để xử lý các request được gọi là *action*. Theo mặc định, mỗi phương thức public trong một controller là một action, và có thể truy cập từ một URL. Một action sẽ xử lý request và tạo ra response.
 
 ### 1.1.1 App Controller
-`AppController` có cấu trúc như sau:
+Class `AppController` là class cha cho tất cả các controller của ứng dụng. `AppController` tự extends class `Controller` trong thư viện core CakePHP.  `AppController` có cấu trúc như sau:
 
 ```
-namespace App\Controller;
-use Cake\Controller\Controller
 class AppController extends Controller
 ```
 
-Khi áp dụng các quy tắc của lập trình hướng đối tượng, CakePHP sẽ thêm một số việc khi nói đến các thuộc tính controller đặc biệt. Trong trường hợp này, các mảng giá trị `AppController` được merged với các mảng trong controller con. Các giá trị trong lớp con sẽ luôn ghi đè các giá trị trong `AppController`.
+Khi áp dụng các quy tắc của lập trình hướng đối tượng, CakePHP sẽ thêm một số cái khi nói đến các thuộc tính controller đặc biệt. Trong trường hợp này, các mảng giá trị `AppController` được merged với các mảng trong controller con. Các giá trị trong lớp con sẽ luôn ghi đè các giá trị trong `AppController`.
 
 > CakePHP sẽ merge các biến sau từ `AppController` vào các controller của ứng dụng:
 > - $components
@@ -144,7 +142,7 @@ public $components = array(
 );
 ```
 
-### 1.2.3 Sử dụng Component khác trong Component
+### 1.2.4 Sử dụng Component khác trong Component
 Thỉnh thoảng một vài component cần phải sử dụng component khác. Trong trường hợp này ta có thể include component khác, sử dụng biến $components.
 
 ```
@@ -241,7 +239,7 @@ class DATABASE_CONFIG {
 }
 ```
 
-Việc đặt tên cũng rất quan trọng. Ví dụ nếu có bảng big_boxes, model là BigBox, controller là BigBoxesController thì mọi thứ sẽ hoạt động tự động.
+Việc đặt tên cũng rất quan trọng. Ví dụ nếu có bảng big_boxes, model là BigBox, controller là BigBoxesController thì tất cả sẽ hoạt động tự động.
 
 ### 1.4.2 Thêm Class Path
 Ta có thể chia sẻ các class MVC giữa các ứng dụng trên cùng một hệ thống. Nếu muốn có cùng controller trong cả hai ứng dụng, ta có thể sử dụng `bootstrap.php` của CakePHP để đưa các class bổ sung này vào view.
@@ -330,14 +328,14 @@ App::build(array(
 Class `Configure` được sử dụng để quản lý một tập các biến cấu hình CakePHP core. Các biến này nằm ở trong `app/Config/core.php`, bao gồm: debug, Error, Exception, App.baseURL, App.fullBaseUrl,...
 
 #### Core Cache Configuration
-CakePHP sử dụng hai cấu hình bộ nhớ cache. `_cake_model` và `_cake_core`. `_cake_core` được dùng để lưu đường dẫn file và vị trí object. `_cake_model` được sử dụng để lưu trữ mô tả schema và các danh sách sorce cho datasources. Khuyến nghị sử dụng bộ nhớ cache nhanh APC hoặc Memcached vì chúng đọc được trên mọi request.
+CakePHP sử dụng hai cấu hình bộ nhớ cache. `_cake_model` và `_cake_core`. `_cake_core` được dùng để lưu đường dẫn file và vị trí object. `_cake_model` được sử dụng để lưu trữ mô tả schema và các danh sách source cho datasources. Khuyến nghị sử dụng bộ nhớ cache nhanh APC hoặc Memcached vì chúng đọc được trên mọi request.
 
 Ta có thể xóa dữ liệu lưu trong cache bằng `Cache::clear()`.
 
 ### 1.4.4 Configure Class
 `class` Configure
 
-Class Configure của CakePHP có thể được sử dụng để lưu trữ và truy xuất các giá trị của ứng dụng hoặc các giá trị runtime. Hãy cẩn thận vì class này cho phép ta lưu trữ bất cứ thứ gì, sau đó sử dụng nó ở bất kỳ đâu trong code: có thể dẫn đến việc phá vỡ mô hình MVC của CakePHP. Mục tiêu chính của Configure class là giữ các biến tập trung để có thể chia sẻ giữa nhiều object.
+Class Configure của CakePHP có thể được sử dụng để lưu trữ và truy xuất các giá trị của ứng dụng hoặc các giá trị runtime. Hãy cẩn thận vì class này cho phép ta lưu trữ bất cứ thứ gì, và sử dụng nó ở bất kỳ đâu trong code: có thể dẫn đến việc phá vỡ mô hình MVC của CakePHP. Mục tiêu chính của Configure class là giữ các biến tập trung để có thể chia sẻ giữa nhiều object.
 
 ### 1.4.5 Đọc và ghi file configuration
 CakePHP có hai kiểu đọc file cấu hình. `PhpReader` dùng để đọc file config PHP. `IniReader` được dùng để đọc file config ini.
@@ -358,7 +356,7 @@ Tham số:
 
 - $key (string): Định danh của file config để load.
 - $config (string): Alias của configred reader
-- $merge (boolean): Có hay không nội dung của file đọc phải được merge, hoặc ghi đè lên các giá trị hiện có
+- $merge (boolean): Có hay không nội dung của file đọc được merge, hoặc ghi đè lên các giá trị hiện có
 
 ```
 // Load my_file.php using the 'default' reader object.
@@ -383,7 +381,7 @@ Chỉ lưu cấu hình xử lý error:
 
 `Configure::dump('error.php', 'default', array('Error', 'Exception'));`
 
-`Configure::dump()` có thể được sử udngj để sửa hoặc ghi đè file config có thể đọc được với `Configure::load()`.
+`Configure::dump()` có thể được sử dụng để sửa hoặc ghi đè file config có thể đọc được với `Configure::load()`.
 
 # 2. Bootstrap 4
 Bootstrap là một công cụ mã nguồn mở để phát triển với HTML, CSS và JS, cho phép thiết kế website responsive nhanh hơn và dễ dàng hơn. Nhanh chóng tạo mẫu cho các ý tưởng hoặc xây dựng toàn bộ ứng dụng với Sass và mixins, các thành phần được dựng sẵn, và các plugin mạnh mẽ được xây dựng trên jQuery.
@@ -487,6 +485,6 @@ Em thấy 2 chức năng **Arena** và **Battle Connect** là hay hơn cả. Vì
 - **Battle Connet** mình có thể kết hợp với hai người chơi khác để đi đánh boss kiếm tiền và vật phẩm. Boss nhìn cũng khá hùng vĩ.
 
 ## Đánh giá về game
-Em thấy game này chơi hay. Hình ảnh đồ họa đẹp mắt, nhân vật dễ thương. Hiệu ứng kỹ năng nhân vật hoành tráng, đa dạng. Game có nhiều tính năng thú vị, hấp dẫn. Event trong game phong phú, giá trị.
+Em thấy game chơi hay. Hình ảnh đồ họa đẹp mắt, nhân vật dễ thương. Hiệu ứng kỹ năng nhân vật hoành tráng, đa dạng. Game có nhiều tính năng thú vị, hấp dẫn. Event trong game phong phú, giá trị.
 
 Nhưng có một điểm em không biết vì sao khi connect vào game thì rất khó, phải connect tới vài lần mới vào được game. Nhiều lúc em cảm thấy hơi khó chịu.
