@@ -4,7 +4,7 @@ Controller là 'C' trong MVC. Thông thường một controller được sử d�
 
 Các Controller được extends từ class `AppController`. `AppController` có thể được định nghĩa trong **src/Controller/AppController** và nó chứa các phương thức được chia sẻ giữa tất cả các controller với nhau.
 
-Controller cung cấp một số phương thức để xử lý các request được gọi là *action*. Theo mặc định, mỗi phương thức public trong một controller là một action, và có thể truy cập từ một URL. Một action xử lý request và tạo ra response.
+Controller cung cấp một số phương thức để xử lý các request được gọi là *action*. Theo mặc định, mỗi phương thức public trong một controller là một action, và có thể truy cập từ một URL. Một action sẽ xử lý request và tạo ra response.
 
 ### 1.1.1 App Controller
 `AppController` có cấu trúc như sau:
@@ -15,83 +15,23 @@ use Cake\Controller\Controller
 class AppController extends Controller
 ```
 
-Các thuộc tính và phương thức trong `Appcontroller` sẽ có sẵn trong tất cả các Controller extend nó. Có thể sử dụng `AppController` để load các component được sử dụng trong mọi controller của ứng dụng. CakePHP cung cấp một phương thức `initialize()`  được gọi ở cuối của Controller constructor:
+Khi áp dụng các quy tắc của lập trình hướng đối tượng, CakePHP sẽ thêm một số việc khi nói đến các thuộc tính controller đặc biệt. Trong trường hợp này, các mảng giá trị `AppController` được merged với các mảng trong controller con. Các giá trị trong lớp con sẽ luôn ghi đè các giá trị trong `AppController`.
 
-```
-namespace App\Controller;
+> CakePHP sẽ merge các biến sau từ `AppController` vào các controller của ứng dụng:
+> - $components
+> - $helpers
+> - $uses
 
-use Cake\Controller\Controller;
-
-class AppController extends Controller
-{
-    public function initialize()
-    {
-        // Always enable the CSRF component.
-        $this->loadComponent('Csrf');
-    }
-}
-```
-
-### 1.1.2 Request Flow
-Khi một request được thực hiện đến một ứng dụng CakePHP, lớp `Cake\Routing\Router` và `Cake\Routing\Dispatcher` sử dụng `Connecting Route` để tìm và tạo ra một instance controller. Dữ liệu request được đóng gói trong một đối tượng request. CakePHP đặt tất cả các thông tin request quan trọng vào thuộc tính `$this->request`.
+### 1.1.2 Request parameters
+Khi một request được thực hiện đến một ứng dụng CakePHP, lớp `Cake\Routing\Router` và `Cake\Routing\Dispatcher` sử dụng `Routes Configuration` để tìm và tạo ra một instance controller. Dữ liệu request được đóng gói trong một đối tượng request. CakePHP đặt tất cả các thông tin request quan trọng vào thuộc tính `$this->request`.
 
 ### 1.1.3 Controller Actions
-Controller thực hiện chuyển các tham số request thành response cho browser/user thực hiện request. CakePHP sử dụng các quy ước để tự động hóa quá trình này. Theo quy ước, CakePHP sinh ra một view có tên là tên của action.
+Controller thực hiện chuyển các tham số request thành response cho browser/user thực hiện request. CakePHP sử dụng các quy tắc để tự động hóa quá trình này. Theo quy tắc, CakePHP sinh ra một view có tên là tên của action.
 
-Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Do các quy ước của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
-
-<!-- ### 1.1.4 Tương tác với View
-Controller tương tác với view theo một số cách. Đầu tiên, nó truyền dữ liệu đến view, sử dụng `Controller::set()`. Ta cũng có thể quyết định lớp view nào sử dụng, và những gì view hiển thị.
-
-#### Thiết lập biến View
-`Cake\Controller\Controller::set(string $var, mixed $value)`
-
-Phương thức `Controller::set()` dùng để gửi dữ liệu từ controller đến view. Khi ta sử dụng `Controller::set`, biến có thể được truy cập ở trong view
-
-```
-// First you pass data from the controller:
-
-$this->set('color', 'pink');
-
-// Then, in the view, you can utilize the data:
-?>
-
-You have selected <?= h($color) ?> icing for the cake.
-```
-
-#### Thiết lập tùy chọn View
-Nếu ta muốn tùy chỉnh view, có thể sử dụng phương thức `viewBuilder()`. Nó có thể được sử dụng để xác định thuộc tính của view trước khi nó được tạo ra.
-
-```
-$this->viewBuilder()
-    ->helpers(['MyCustom'])
-    ->theme('Modern')
-    ->className('Modern.Admin');
-```
-
-#### Render View
-`Cake\Controller\Controller::render(string $view, string $layout)`
-
-Phương thức `Controller::render()` được gọi tự động vào cuối mỗi controller action. Phương thức này thực hiện tất cả các view logic (sử dụng dữ liệu ta gửi bằng phương thức `Controller::set()`), đặt view bên trong `View::$layout`, và trả về cho người dùng cuối.
-
-### 1.1.5 Chuyển trang
-`Cake\Controller\Cake\Controller\Controller::redirect(string|array $url, integer $status)`
-
-Phương thức điều khiển luồng hay sử dụng nhất là `Controller::redirect()`. Tham số đầu tiên là đường dẫn URL tương đối hoặc tuyệt đối. Tham số thứ 2 là trạng thái HTTP, ví dụ 301, 303 tùy thuộc vào tình huống.
-
-#### Chuyển hướng đến một action khác trong cùng một Controller
-`Cake\Controller\Controller::setAction($action, $args...)`
-
-Nếu cần chuyển tiếp từ action hiện tại đến một action khác trên cùng một controller, ta có thể sử dụng `Controller::setAction()` để cập nhật request, view được sửa và thực hiện chuyển tiếp đến action được đặt tên:
-
-```
-// From a delete action, you can render the updated
-// list page.
-$this->setAction('index');
-``` -->
+Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Do các quy tắc của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
 
 ## 1.2 Components
-Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho code của controller "sạch" và cho phép sử dụng lại code giữa các controller.
+Component là các gói logic được chia sẻ giữa các controller. CakePHP có một tập các core component mà ta có thể sử dụng để hỗ trợ các tác vụ khác nhau. Ta cũng có thể tạo các component riêng. Nếu muốn copy và paste nhiều thứ giữa các controller với nhau, ta nên tạo ra component riêng để chứa các hàm. Tạo component làm cho code của controller "sạch" và cho phép tái sử dụng code giữa các controller.
 
 Các component có trong CakePHP:
 
@@ -122,7 +62,7 @@ class PostsController extends AppController
 }
 ```
 
-Ta có thể cấu hình component tại thời gian chạy sử dụng phương thức `config()`. Thông thường điều này được thực hiện trong phương thức `beforeFilter()` của controller.
+Ta có thể cấu hình component tại runtime sử dụng phương thức `config()`. Thông thường điều này được thực hiện trong phương thức `beforeFilter()` của controller.
 
 ```
 // Read config data.
@@ -132,7 +72,7 @@ $this->Auth->config('loginAction');
 $this->Csrf->config('cookieName', 'token');
 ```
 
-Component tự động gộp thuộc tính `$_defaultConfig` với cấu hình constructor để tạo ra thuộc tính `$_config` có thể truy cập bằng `config()`.
+Component tự động gộp thuộc tính `$_defaultConfig` với cấu hình constructor để tạo ra thuộc tính `$_config` có thể truy cập bằng phương thức `config()`.
 
 ### 1.2.2 Sử dụng Components
 Khi include các component vào trong controller thì sử dụng chúng khá đơn giản. Mỗi component sử dụng được exposed như thuộc tính trong controller. Nếu ta tải `Cake\Controller\Component\FlashComponent` trong controller, ta có thể truy cập như sau:
@@ -206,7 +146,7 @@ Một model có thể được liên kết với các model khác. Ví dụ: Bà
 Lớp model của CakePHP được tách thành hai đối tượng `Table` và `Entity`. Đối tượng `Table` cho phép ta lưu các bản ghi mới, sửa đổi/xóa các bản ghi hiện có, xác định mối quan hệ. Đối tượng `Entity` đại diện cho các bản ghi và cho phép ta xác định hành vi và chức năng cấp độ row/record. CakePHP sử dụng các quy ước đặt tên để liên kết hai lớp Table và Entity với nhau.
 
 ## 1.4 Configuration
-Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng. Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
+Thư mục *config* chứa các file cấu hình mà CakePHP sử dụng như: Kết nối cơ sở dữ liệu, bootstrapping, file cấu hình lõi,...
 
 ### 1.4.1 Config ứng dụng
 Configuration thường được lưu trữ trong các file PHP hoặc INI, và được tải trong khi khởi động ứng dụng. CakePHP đi kèm với một file cấu hình mặc định, nhưng ta cũng có thể thêm file cấu hình bổ sung và tải vào code ứng dụng. `Cake\Core\Configure` được sử dụng cho cấu hình toàn cục, và các lớp như Cache cung cấp phương thức config() để làm cho cấu hình đơn giản và rõ ràng.
@@ -297,21 +237,21 @@ bootstrap/
     └── bootstrap.min.js
 ```
 
-Đây là form cơ bản của Bootstrap: các file biên dịch sẵn để sử dụng nhanh chóng trong các web project. Nó cung cấp CSS và JS đã được biên dịch (`bootstrap.\*`), cũng như CSS và JS được biên dịch và minified (`bootstrap.min.\*`). CSS **source maps** (`bootstrap.\*.map`) có sẵn để sử dụng với các công cụ phát triển của browser. File bundled JS (`bootstrap.bundle.js` và minified `bootstrap.bundle.min.js`) bao gồm **Popper**, nhưng không có **jQuery**.
+Đây là form cơ bản của Bootstrap: các file được biên dịch sẵn để sử dụng nhanh chóng trong các web project. Nó cung cấp CSS và JS (`bootstrap.\*`), (`bootstrap.min.\*`). CSS **source maps** (`bootstrap.\*.map`) có sẵn để sử dụng với các công cụ phát triển của browser. File bundled JS (`bootstrap.bundle.js` và minified `bootstrap.bundle.min.js`) bao gồm **Popper**, nhưng không có **jQuery**.
 
 ## 2.2 Các điểm nổi bật của bootstrap 4
 ### 2.2.1 Chuyển đổi từ LESS sang SASS
-Bootstrap bây giờ biên dịch rất nhanh nhờ Libsass, và tham gia vào cộng đồng phát triển SASS.
-
 CSS Preprocessor là một ngôn ngữ kịch bản mở rộng của CSS và được biên dịch thành cú pháp CSS giúp ta viết CSS nhanh hơn và có cấu trúc rõ ràng hơn. CSS Preprocessor có thể giúp ta tiết kiệm thời gian viết CSS, dễ dàng bảo trì và phát triển CSS,...
 
 SASS là một CSS Preprocessor cung cấp thêm các quy tắc như nested rule, variable, mixin, ... Với SASS ta có thể viết CSS theo thứ tự rõ ràng, quản lý các biến đã được định nghĩa sẵn, có thể tự động nén tập tin CSS.
+
+Bootstrap bây giờ biên dịch rất nhanh nhờ Libsass, và tham gia vào cộng đồng phát triển SASS.
 
 ### 2.2.2 Cải tiến hệ thống Grid
 Bootstrap 3 hiện tại có 4 dạng grid dành cho cột, đó là `.col-xs-`, `.col-sm-`, `.col-md-`, `.col-lg-`. Bootstrap 4 đã chỉnh lại và giới thiệu thêm dạng grid thứ 5 là `.col-xl-` giúp xây dựng layout hoạt động tốt hơn trên tất cả các thiết bị.
 
 ### 2.2.3 Hỗ trợ Opt-in flexbox
-Chuyển đổi biến boolean trong file `_variables.scss` và biên dịch lại CSS để thấy sự tiện dụng của các thành phần và hệ thống grid sử dụng flexbox.
+Chuyển đổi biến boolean `enable-flex` trong file `_variables.scss` và biên dịch lại CSS để thấy sự tiện dụng của các thành phần và hệ thống grid sử dụng flexbox.
 
 Mặc định ban đầu
 
@@ -353,6 +293,7 @@ Ví dụ như custom form control, margin, các class padding, các class mới,
 
 ## Các chức năng chính trong game
 - Mua, bán, nâng cấp đồ
+- Nâng cấp hero
 - Auto
 - Tăng tốc độ game
 - Mượn tướng
