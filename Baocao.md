@@ -1,4 +1,4 @@
-# 1. CakePHP2
+# 1. CakePHP 2
 ## 1.1 Controllers
 Controller là 'C' trong MVC. Controller có thể coi là người trung gian giữa Model và View. Thông thường một controller được sử dụng để quản lý logic xung quanh một model. Trong CakePHP, controller được đặt tên theo model mà nó xử lý.
 
@@ -9,11 +9,9 @@ Controller cung cấp một số phương thức để xử lý các request đ�
 ### 1.1.1 App Controller
 Class `AppController` là class cha cho tất cả các controller của ứng dụng. `AppController` tự extends class `Controller` trong thư viện core CakePHP.  `AppController` có cấu trúc như sau:
 
-```
-class AppController extends Controller
-```
+`class AppController extends Controller`
 
-Khi áp dụng các quy tắc của lập trình hướng đối tượng, CakePHP sẽ thêm một số cái khi nói đến các thuộc tính controller đặc biệt. Trong trường hợp này, các mảng giá trị `AppController` được merged với các mảng trong controller con. Các giá trị trong lớp con sẽ luôn ghi đè các giá trị trong `AppController`.
+Khi áp dụng các quy tắc của lập trình hướng đối tượng, CakePHP sẽ thêm một số thứ khi nói đến các thuộc tính controller đặc biệt. Trong trường hợp này, các mảng giá trị `AppController` được merged với các mảng trong controller con. Các giá trị trong lớp con sẽ luôn ghi đè các giá trị trong `AppController`.
 
 > CakePHP sẽ merge các biến sau từ `AppController` vào các controller của ứng dụng:
 > - $components
@@ -26,7 +24,7 @@ Khi một request được thực hiện đến một ứng dụng CakePHP, lớ
 ### 1.1.3 Controller Actions
 Controller thực hiện chuyển các tham số request thành response cho browser/user thực hiện request. CakePHP sử dụng các quy tắc để tự động hóa quá trình này. Theo quy tắc, CakePHP sinh ra một view có tên là tên của action.
 
-Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Do các quy tắc của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
+Controller action thường sử dụng `Controller::set()` để tạo ra `View`. Theo các quy tắc của CakePHP, không cần phải tạo và render view thủ công. Khi controller action được hoàn thành, CakePHP sẽ xử lý rendering và delivering View.
 
 Khi sử dụng các phương thức trong controller với `requestAction()`, ta thường muốn trả về dữ liệu không phải dạng string. Nếu các phương thức controller được sử dụng cho các request web thông thường, ta nên kiểm tra trước khi trả về
 
@@ -216,8 +214,6 @@ class Recipe extends AppModel {
     }
 }
 ```
-
-Điều này cho thấy model đã được liên kết.
 
 ## 1.4 Configuration
 Thư mục *Config* chứa các file cấu hình mà CakePHP sử dụng như: Kết nối cơ sở dữ liệu, bootstrapping, file core,...
@@ -481,7 +477,7 @@ Ngoài ra còn nhiều chức năng khác nữa.
 
 Em thấy 2 chức năng **Arena** và **Battle Connect** là hay hơn cả. Vì:
 
-- **Arena** mình được đấu với người chơi thật nên cảm thấy mới mẻ, thú vị, không nhàm chán như đi đánh quái.
+- **Arena** mình được đấu với người chơi thật, mang lại cảm thấy mới mẻ, thú vị, không nhàm chán như đi đánh quái.
 - **Battle Connet** mình có thể kết hợp với hai người chơi khác để đi đánh boss kiếm tiền và vật phẩm. Boss nhìn cũng khá hùng vĩ.
 
 ## Đánh giá về game
